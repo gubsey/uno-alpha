@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="dim">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kllc</title>
+  </head>
+  <body x-data x-cloak>
+    <select @change="x => document.documentElement.setAttribute('data-theme', x.target.value)">
+      <template x-for="theme in window.daisy_themes">
+        <option x-text="theme"></option>
+      </template>
+    </select>
+    <div x-cloak x-data="{cmd: 'select * from fruits', res: []}">
+      <form @submit.prevent="0;try{res.push(...window.db.exec(cmd))}catch(e){alert(e)}">
+        <input x-model="cmd">
+      </form>
+      <template x-for="r in res">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <template x-for="name in r.columns">
+                <td x-text="name"></td>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in r.values">
+              <tr>
+                <template x-for="cell in row">
+                  <td x-text="cell"></td>
+                </template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </template>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
