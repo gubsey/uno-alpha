@@ -1,6 +1,7 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or the definition README at
+// https://github.com/microsoft/vscode-dev-containers/tree/master/containers/docker-existing-dockerfile
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "features": {
-    "ghcr.io/devcontainers/features/nix:1": {}
-  }
+  "name": "nix-devcontainer",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev"
 }

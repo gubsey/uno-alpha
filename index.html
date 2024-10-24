@@ -1,42 +1,53 @@
 <!doctype html>
-<html lang="en" data-theme="dim">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>kllc</title>
-  </head>
-  <body x-data x-cloak>
-    <select @change="x => document.documentElement.setAttribute('data-theme', x.target.value)">
-      <template x-for="theme in window.daisy_themes">
-        <option x-text="theme"></option>
+<html lang="en" class="bg-zinc-700 text-zinc-400 [&_input]:bg-zinc-700">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kllc</title>
+</head>
+
+<body x-data x-cloak>
+  <h1 x-text="seven"></h1>
+  <div x-data="{file_list: []}">
+    <input type="file" accept=".xls,.xlsx" x-on:change="file_list = [...$event.target.files]" multiple>
+    <template x-for="f in file_list">
+      <template x-for="[sn,sobj] in await xlsx_to_obj(f)">
+        <div>
+          <p x-text="sn"></p>
+          <code x-text="JSON.stringify(sobj,null,2)"></code>
+        </div>
       </template>
-    </select>
-    <div x-cloak x-data="{cmd: 'select * from fruits', res: []}">
-      <form @submit.prevent="0;try{res.push(...window.db.exec(cmd))}catch(e){alert(e)}">
-        <input x-model="cmd">
-      </form>
-      <template x-for="r in res">
-        <table class="table table-zebra">
-          <thead>
-            <tr>
-              <template x-for="name in r.columns">
-                <td x-text="name"></td>
+    </template>
+
+  </div>
+  <div x-cloak x-data="{cmd: 'select * from fruits', res: []}">
+    <form @submit.prevent="0;try{res.push(...window.db.exec(cmd))}catch(e){alert(e)}">
+      <input x-model="cmd">
+    </form>
+    <template x-for="r in res">
+      <table class="">
+        <thead class="font-bold">
+          <tr>
+            <template x-for="name in r.columns">
+              <td x-text="name"></td>
+            </template>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="row in r.values">
+            <tr class="even:bg-zinc-800 ">
+              <template x-for="cell in row">
+                <td x-text="cell"></td>
               </template>
             </tr>
-          </thead>
-          <tbody>
-            <template x-for="row in r.values">
-              <tr>
-                <template x-for="cell in row">
-                  <td x-text="cell"></td>
-                </template>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </template>
-    </div>
-    <script type="module" src="/main.js"></script>
-  </body>
+          </template>
+        </tbody>
+      </table>
+    </template>
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
+
 </html>
