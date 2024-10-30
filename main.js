@@ -11,6 +11,8 @@ window.xlsx_to_obj = async (file) => {
   return xl.SheetNames.map(name => [name, XLSX.utils.sheet_to_json(xl.Sheets[name])])
 }
 
+
+
 try {
   const sql = await initSqlJs({
     locateFile: _ => wasm
@@ -21,6 +23,20 @@ try {
     insert into fruits values ("apples", 3), ("bananas", 5), ("grapes", 7); \
   ')
 
+  window.sheet_obj_upload = (nname, obj) => {
+    const keys = Object.keys(obj[0])
+    const name = `"${nname}"`
+
+    try {
+      db.run(`create table ${name} (${keys.map(k => `"${k}"`).join(", ")})`)
+    } catch (e) {
+      alert(`create failed ${e}`)
+    }
+
+    for (const row of obj) {
+      db.run(`insert into ${name} values (${keys.map(_ => '?').join(', ')})`, keys.map(k => row[k]))
+    }
+  }
 
   window.db = db
   window.Alpine = Alpine

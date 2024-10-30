@@ -8,17 +8,40 @@
   <title>kllc</title>
 </head>
 
-<body x-data x-cloak>
+<body x-data x-cloak class="max-w-7xl mx-auto">
   <h1 x-text="seven"></h1>
   <div x-data="{file_list: []}">
     <input type="file" accept=".xls,.xlsx" x-on:change="file_list = [...$event.target.files]" multiple>
     <template x-for="f in file_list">
-      <template x-for="[sn,sobj] in await xlsx_to_obj(f)">
-        <div>
-          <p x-text="sn"></p>
-          <code x-text="JSON.stringify(sobj,null,2)"></code>
-        </div>
-      </template>
+      <div class="flex overflow-x-scroll">
+        <template x-for="[sn,sobj] in await xlsx_to_obj(f)">
+          <div x-data="{keys: Object.keys(sobj[0]), visible: false, name: sn}">
+            <input x-model="name" type="text">
+            <br>
+            <button @click="visible = !visible">toggle show/hide</button>
+            <table x-show="visible">
+              <thead>
+                <tr>
+                  <template x-for="key in keys">
+                    <td x-text="key"></td>
+                  </template>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="row in sobj">
+                  <tr>
+                    <template x-for="key in keys">
+                      <td x-text="row[key]"></td>
+                    </template>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <br>
+            <button @click="sheet_obj_upload(sn, sobj)">upload to sql</button>
+          </div>
+        </template>
+      </div>
     </template>
 
   </div>
