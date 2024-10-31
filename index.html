@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="bg-zinc-700 text-zinc-400 [&_input]:bg-zinc-700">
+<html lang="en" class="bg-zinc-700 text-zinc-300">
 
 <head>
   <meta charset="UTF-8" />
@@ -13,61 +13,63 @@
   <div x-data="{file_list: []}">
     <input type="file" accept=".xls,.xlsx" x-on:change="file_list = [...$event.target.files]" multiple>
     <template x-for="f in file_list">
-      <div class="flex overflow-x-scroll">
-        <template x-for="[sn,sobj] in await xlsx_to_obj(f)">
-          <div x-data="{keys: Object.keys(sobj[0]), visible: false, name: sn}">
-            <input x-model="name" type="text">
-            <br>
-            <button @click="visible = !visible">toggle show/hide</button>
-            <table x-show="visible">
-              <thead>
+      <div>
+        <h3 x-text="f.name"></h3>
+        <div class="flex flex-wrap gap-2">
+          <template x-for=" [sn,sobj] in await xlsx_to_obj(f)">
+            <div x-data="{keys: Object.keys(sobj[0]), visible: false, name: sn, heads: {}}" class="border rounded p-2">
+              <label>Title: </label>
+              <input x-model="name" type="text" class="bg-zinc-900 pl-2 rounded">
+              <br>
+              <label>Headers:</label>
+              <div class="flex flex-col gap-1">
+                <template x-for="key in keys">
+                  <input x-model="heads[key]" type="text" :placeholder="key" class="bg-zinc-900 pl-2 rounded w-fit">
+                </template>
+              </div>
+              <br>
+              <button @click="sheet_obj_upload(sn, sobj)"
+                class="bg-lime-800 text-lime-300 rounded-lg px-3 py-1">Upload</button>
+            </div>
+          </template>
+
+        </div>
+      </div>
+    </template>
+  </div>
+  <div x-cloak x-data="{cmd: 'select name from sqlite_schema', res: []}" x-effect="reset_scroll()"
+    class="border h-96 w-full overflow-y-scroll" id="sql_terminal"
+    @click="document.getElementById('cmd_input').focus()">
+    <form @submit.prevent="cmd_submit(res,cmd); cmd = ''" class="w-full flex gap-1">
+      <label class="flex-initial">> </label>
+      <input focus x-model="cmd" class="outline-none flex-grow bg-zinc-700" id="cmd_input">
+    </form>
+    <template x-for="[cmd_used, results] in res.reverse()">
+      <div class="flex flex-col-reverse">
+        <div>
+          <p x-text="'> ' + cmd_used"></p>
+          <template x-for="r in results">
+            <table class="border">
+              <thead class="font-bold">
                 <tr>
-                  <template x-for="key in keys">
-                    <td x-text="key"></td>
+                  <template x-for="name in r.columns">
+                    <td x-text="name"></td>
                   </template>
                 </tr>
               </thead>
               <tbody>
-                <template x-for="row in sobj">
-                  <tr>
-                    <template x-for="key in keys">
-                      <td x-text="row[key]"></td>
+                <template x-for="row in r.values">
+                  <tr class="even:bg-zinc-800 ">
+                    <template x-for="cell in row">
+                      <td x-text="cell"></td>
                     </template>
                   </tr>
                 </template>
               </tbody>
             </table>
-            <br>
-            <button @click="sheet_obj_upload(sn, sobj)">upload to sql</button>
-          </div>
-        </template>
-      </div>
-    </template>
-
-  </div>
-  <div x-cloak x-data="{cmd: 'select * from fruits', res: []}">
-    <form @submit.prevent="0;try{res.push(...window.db.exec(cmd))}catch(e){alert(e)}">
-      <input x-model="cmd">
-    </form>
-    <template x-for="r in res">
-      <table class="">
-        <thead class="font-bold">
-          <tr>
-            <template x-for="name in r.columns">
-              <td x-text="name"></td>
-            </template>
-          </tr>
-        </thead>
-        <tbody>
-          <template x-for="row in r.values">
-            <tr class="even:bg-zinc-800 ">
-              <template x-for="cell in row">
-                <td x-text="cell"></td>
-              </template>
-            </tr>
           </template>
-        </tbody>
-      </table>
+        </div>
+      </div>
     </template>
   </div>
   <script type="module" src="/main.js"></script>

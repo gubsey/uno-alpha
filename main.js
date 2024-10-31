@@ -23,6 +23,22 @@ try {
     insert into fruits values ("apples", 3), ("bananas", 5), ("grapes", 7); \
   ')
 
+  /**
+   * 
+   * @param {[string, any[]][]} res 
+   * @param {string} cmd
+   */
+  window.cmd_submit = (res, cmd) => {
+    try {
+      res.push([cmd, db.exec(cmd)])
+    } catch (e) { alert(e) }
+  }
+
+  window.reset_scroll = () => {
+    let x = document.getElementById('sql_terminal');
+    x.scrollTop = x.scrollHeight
+  }
+
   window.sheet_obj_upload = (nname, obj) => {
     const keys = Object.keys(obj[0])
     const name = `"${nname}"`
