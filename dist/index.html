@@ -1,48 +1,84 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="bg-zinc-700 text-zinc-300">
 
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kllc</title>
-  <script type="module" crossorigin src="/assets/index-C2M9lMAx.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-nfP6BmPa.css">
+  <script type="module" crossorigin src="/assets/index-B8-NUvzn.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DayrTW2U.css">
 </head>
 
-<body x-data x-cloak>
-  <div x-data="{file_list: []}">
-    <input type="file" accept=".xls,.xlsx" x-on:change="file_list = [...$event.target.files]" multiple>
-    <ul class="list-disc">
-      <template x-for="f in file_list">
-        <li x-text="f.name" class="bg-grey-200"></li>
+<body x-data="{cmd: 'SELECT name FROM sqlite_schema'}" x-cloak class="max-w-7xl mx-auto">
+  <div x-data="tables_component()">
+    <h3>Tables Loaded:</h3>
+    <ul>
+      <template x-for="name in table_names">
+        <li x-text="name" @click="cmd = `SELECT * FROM '${name}'`"></li>
       </template>
     </ul>
-
   </div>
-  <div x-cloak x-data="{cmd: 'select * from fruits', res: []}">
-    <form @submit.prevent="0;try{res.push(...window.db.exec(cmd))}catch(e){alert(e)}">
-      <input x-model="cmd">
-    </form>
-    <template x-for="r in res">
-      <table class="table table-zebra">
-        <thead>
-          <tr>
-            <template x-for="name in r.columns">
-              <td x-text="name"></td>
-            </template>
-          </tr>
-        </thead>
-        <tbody>
-          <template x-for="row in r.values">
-            <tr>
-              <template x-for="cell in row">
-                <td x-text="cell"></td>
-              </template>
-            </tr>
+  <div x-data="{file_list: []}">
+    <input type="file" accept=".xls,.xlsx" x-on:change="file_list = [...$event.target.files]" multiple>
+    <template x-for="f in file_list">
+      <div>
+        <h3 x-text="f.name"></h3>
+        <div class="flex flex-wrap gap-2">
+          <template x-for=" [sn,sobj] in await xlsx_to_obj(f)">
+            <div x-data="{keys: Object.keys(sobj[0]), visible: false, name: sn, heads: {}}" class="border rounded p-2">
+              <label>Title: </label>
+              <input x-model="name" type="text" class="bg-zinc-900 pl-2 rounded">
+              <br>
+              <label>Headers:</label>
+              <div class="flex flex-col gap-1">
+                <template x-for="key in keys">
+                  <input x-model="heads[key]" type="text" :placeholder="key" class="bg-zinc-900 pl-2 rounded w-fit">
+                </template>
+              </div>
+              <br>
+              <button @click="sheet_obj_upload(sn, sobj)"
+                class="bg-lime-800 text-lime-300 rounded-lg px-3 py-1">Upload</button>
+            </div>
           </template>
-        </tbody>
-      </table>
+
+        </div>
+      </div>
+    </template>
+  </div>
+  <div x-cloak x-data="{res: []}" x-effect="reset_scroll('sql_terminal')"
+    class="border h-96 w-full overflow-y-scroll my-2" id="sql_terminal"
+    @click="">
+    <form @submit.prevent="cmd_submit(res,cmd); cmd = ''" class="w-full flex gap-1">
+      <label class="flex-initial">> </label>
+      <input focus x-model="cmd" class="outline-none flex-grow bg-zinc-700" id="cmd_input">
+    </form>
+    <template x-for="[cmd_used, results] in res.reverse()">
+      <div class="flex flex-col-reverse">
+        <div>
+          <p x-text="'> ' + cmd_used"></p>
+          <template x-for="r in results">
+            <table class="border">
+              <thead class="font-bold">
+                <tr>
+                  <template x-for="name in r.columns">
+                    <td x-text="name"></td>
+                  </template>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="row in r.values">
+                  <tr class="even:bg-zinc-800 ">
+                    <template x-for="cell in row">
+                      <td x-text="cell"></td>
+                    </template>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </template>
+        </div>
+      </div>
     </template>
   </div>
 </body>
