@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kllc</title>
+  <script type="module" crossorigin src="/assets/index-C2M9lMAx.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-nfP6BmPa.css">
+</head>
+
+<body x-data x-cloak>
+  <div x-data="{file_list: []}">
+    <input type="file" accept=".xls,.xlsx" x-on:change="file_list = [...$event.target.files]" multiple>
+    <ul class="list-disc">
+      <template x-for="f in file_list">
+        <li x-text="f.name" class="bg-grey-200"></li>
+      </template>
+    </ul>
+
+  </div>
+  <div x-cloak x-data="{cmd: 'select * from fruits', res: []}">
+    <form @submit.prevent="0;try{res.push(...window.db.exec(cmd))}catch(e){alert(e)}">
+      <input x-model="cmd">
+    </form>
+    <template x-for="r in res">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <template x-for="name in r.columns">
+              <td x-text="name"></td>
+            </template>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="row in r.values">
+            <tr>
+              <template x-for="cell in row">
+                <td x-text="cell"></td>
+              </template>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </template>
+  </div>
+</body>
+
+</html>
