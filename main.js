@@ -1,11 +1,11 @@
 import Alpine from 'alpinejs'
 import './style.css'
-import initSqlJs from 'sql.js'
+import initSqlJs, { Database } from 'sql.js'
+// @ts-ignore
 import wasm from 'sql.js/dist/sql-wasm.wasm?url'
 import * as XLSX from 'xlsx'
-/**
- * @param {File} file 
- */
+
+
 window.xlsx_to_obj = async (file) => {
   const xl = XLSX.read(await file.arrayBuffer())
   return xl.SheetNames.map(name => [name, XLSX.utils.sheet_to_json(xl.Sheets[name])])
@@ -23,19 +23,18 @@ try {
     insert into fruits values ("apples", 3), ("bananas", 5), ("grapes", 7); \
   ')
 
-  /**
-   * 
-   * @param {[string, any[]][]} res 
-   * @param {string} cmd
-   */
   window.cmd_submit = (res, cmd) => {
     try {
       res.push([cmd, db.exec(cmd)])
     } catch (e) { alert(e) }
   }
 
-  window.reset_scroll = () => {
-    let x = document.getElementById('sql_terminal');
+  window.reset_scroll = (id) => {
+    let x = document.getElementById(id);
+    if (x === null) {
+      alert(`"${id}" is not the id of any element`)
+      return
+    }
     x.scrollTop = x.scrollHeight
   }
 
@@ -51,6 +50,21 @@ try {
 
     for (const row of obj) {
       db.run(`insert into ${name} values (${keys.map(_ => '?').join(', ')})`, keys.map(k => row[k]))
+    }
+  }
+
+  window.tables_component = () => {
+    return {
+      /** @type {string[]} */
+      table_names: [],
+      init() {
+        setInterval(() => {
+          this.table_names = db.exec('SELECT name FROM sqlite_schema')[0].values
+        }, 1000);
+      },
+      get_columns(name) {
+        return db.exec(`SELECT * FROM ${name} LIMIT 0`)[0].columns
+      }
     }
   }
 

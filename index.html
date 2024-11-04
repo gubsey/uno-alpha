@@ -8,8 +8,15 @@
   <title>kllc</title>
 </head>
 
-<body x-data x-cloak class="max-w-7xl mx-auto">
-  <h1 x-text="seven"></h1>
+<body x-data="{cmd: 'SELECT name FROM sqlite_schema'}" x-cloak class="max-w-7xl mx-auto">
+  <div x-data="tables_component()">
+    <h3>Tables Loaded:</h3>
+    <ul>
+      <template x-for="name in table_names">
+        <li x-text="name" @click="cmd = `SELECT * FROM '${name}'`"></li>
+      </template>
+    </ul>
+  </div>
   <div x-data="{file_list: []}">
     <input type="file" accept=".xls,.xlsx" x-on:change="file_list = [...$event.target.files]" multiple>
     <template x-for="f in file_list">
@@ -37,9 +44,9 @@
       </div>
     </template>
   </div>
-  <div x-cloak x-data="{cmd: 'select name from sqlite_schema', res: []}" x-effect="reset_scroll()"
-    class="border h-96 w-full overflow-y-scroll" id="sql_terminal"
-    @click="document.getElementById('cmd_input').focus()">
+  <div x-cloak x-data="{res: []}" x-effect="reset_scroll('sql_terminal')"
+    class="border h-96 w-full overflow-y-scroll my-2" id="sql_terminal"
+    @click="">
     <form @submit.prevent="cmd_submit(res,cmd); cmd = ''" class="w-full flex gap-1">
       <label class="flex-initial">> </label>
       <input focus x-model="cmd" class="outline-none flex-grow bg-zinc-700" id="cmd_input">
